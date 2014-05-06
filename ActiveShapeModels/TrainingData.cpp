@@ -48,3 +48,15 @@ void TrainingData::generateWAndWInOneColumn(){
 
 	W = cv::Mat::eye(numberOfPoints, numberOfPoints, CV_64F) * WInOneColumn;
 }
+
+void TrainingData::generateGradientImages(){
+	for(std::vector<cv::Mat>::iterator iter = trainingImages.begin(); iter != trainingImages.end(); iter++){
+		cv::Mat gradX, gradY, grad;
+		cv::Sobel(*iter, gradX, (*iter).depth(), 1, 0);
+		cv::Sobel(*iter, gradY, (*iter).depth(), 0, 1);
+		cv::convertScaleAbs(gradX, gradX);
+		cv::convertScaleAbs(gradY, gradY);
+		cv::addWeighted(gradX, 0.5, gradY, 0.5, 0, grad);
+		gradientImages.push_back(grad);
+	}
+}
