@@ -30,6 +30,6 @@ void MappingParameters::getTranslationMatrix(cv::Mat &translationMatrix){
 	//return a matrix like
 	//					[tx 0]
 	//					[0 ty]
-	translationMatrix = (cv::Mat_<double>(2, 2) << translationX, 0
+	translationMatrix = (cv::Mat_<double>(2, 2) << translationX, 0,
 													0, translationY);
 }

@@ -101,3 +101,12 @@ void caculateNewCoordinatesForTrainingShapes(const cv::Mat &shapesX, const cv::M
 		newShapesY.col(i) = _resMat.col(1);
 	}
 }
+
+void getMeanShape(const cv::Mat &shapesX, const cv::Mat &shapesY, cv::Mat &meanShapeX, cv::Mat &meanShapeY){
+	const int numberOfShapes = shapesX.cols;
+	const int numberOfPoints = shapesX.rows;
+	cv::Mat _allOneMat(numberOfPoints, 1, CV_64F, cv::Scalar::all(1));
+	
+	meanShapeX = 1.0 / numberOfShapes * (shapesX * _allOneMat);
+	meanShapeY = 1.0 / numberOfShapes * (shapesY * _allOneMat);
+}

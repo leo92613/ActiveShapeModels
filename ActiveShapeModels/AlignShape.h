@@ -15,5 +15,7 @@ public:
 
 	void caculateNewCoordinatesForTrainingShapes(const cv::Mat &shapesX, const cv::Mat &shapesY, 
 		std::vector<MappingParameters> &P, cv::Mat &newShapesX, cv::Mat &newShapesY);
+
+	void getMeanShape(const cv::Mat &shapesX, const cv::Mat &shapesY, cv::Mat &meanShape);
 };
 
