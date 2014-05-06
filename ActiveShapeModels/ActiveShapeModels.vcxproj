@@ -69,12 +69,14 @@
     <ClCompile Include="AlignShape.cpp" />
     <ClCompile Include="FileManager.cpp" />
     <ClCompile Include="MappingParameters.cpp" />
+    <ClCompile Include="TrainingData.cpp" />
     <ClCompile Include="源.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AlignShape.h" />
     <ClInclude Include="FileManager.h" />
     <ClInclude Include="MappingParameters.h" />
+    <ClInclude Include="TrainingData.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
