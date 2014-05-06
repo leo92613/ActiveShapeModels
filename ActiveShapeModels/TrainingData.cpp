@@ -37,5 +37,14 @@ double TrainingData::getWk(int k){
 }
 
 void TrainingData::generateWAndWInOneColumn(){
-	
+	const int numberOfShapes = trainingShapesX.cols;
+	const int numberOfPoints = trainingShapesX.rows;
+
+	WInOneColumn = cv::Mat(numberOfShapes, 1, CV_64F);
+
+	for(int k = 0; k < numberOfPoints; k++){
+		WInOneColumn.at<double>(k, 0) = getWk(k);
+	}
+
+	W = cv::Mat::eye(numberOfPoints, numberOfPoints, CV_64F) * WInOneColumn;
 }
