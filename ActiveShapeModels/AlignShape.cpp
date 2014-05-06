@@ -86,7 +86,7 @@ void AlignShape::caculateNewCoordinatesForTrainingShapes(const cv::Mat &shapesX,
 	cv::Mat _shapeXY(numberOfPoints, 2, CV_64F);
 
 	for(int i = 0; i < numberOfShapes; i++){
-		P[i].getMappedXY(shapesX.col(i), shapesY.col(i), newShapesX.col(i), newShapesY.col(i));
+		P[i].getAlignedXY(shapesX.col(i), shapesY.col(i), newShapesX.col(i), newShapesY.col(i));
 	}
 }
 
@@ -130,7 +130,7 @@ void AlignShape::alignTrainingShapes(const cv::Mat &trainingShapesX, const cv::M
 
 	MappingParameters POfMeanShape;
 	POfMeanShape = findBestMapping(trainingShapesX.col(0), trainingShapesY.col(0), _meanShapeX, _meanShapeY, WInOneColumn, W);
-	POfMeanShape.getMappedXY(_meanShapeX, _meanShapeY, _meanShapeX, _meanShapeY);
+	POfMeanShape.getAlignedXY(_meanShapeX, _meanShapeY, _meanShapeX, _meanShapeY);
 
 	cv::Mat _lastMeanShapeX, _lastMeanShapeY;
 	
