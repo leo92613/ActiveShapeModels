@@ -13,5 +13,6 @@ public:
 
 	void getMappingMatrix(cv::Mat &mappingMatrix);
 	void getTranslationMatrix(cv::Mat &translationMatrix);
+	void getMappedXY(const cv::Mat &shapeX, const cv::Mat &shapeY, cv::Mat &newShapeX, cv::Mat &newShapeY);
 };
 
