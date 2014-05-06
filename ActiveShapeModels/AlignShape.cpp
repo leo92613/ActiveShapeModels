@@ -76,3 +76,28 @@ MappingParameters findBestMapping(const cv::Mat &Ax, const cv::Mat &Ay,
 
 	return result;
 }
+
+
+void caculateNewCoordinatesForTrainingShapes(const cv::Mat &shapesX, const cv::Mat &shapesY, 
+	std::vector<MappingParameters> &P, cv::Mat &newShapesX, cv::Mat &newShapesY){
+
+	const int numberOfShapes = shapesX.cols;
+	const int numberOfPoints = shapesX.rows;
+	cv::Mat _shapeXY(numberOfPoints, 2, CV_64F);
+	newShapesX = cv::Mat_<double>(numberOfPoints, numberOfShapes);
+	newShapesY = cv::Mat_<double>(numberOfPoints, numberOfShapes);
+	
+	cv::Mat _allOneMat(numberOfPoints, 2, CV_64F, cv::Scalar::all(1));
+
+	for(int i = 0; i < numberOfShapes; i++){
+		_shapeXY.col(0) = shapesX.col(i);
+		_shapeXY.col(1) = shapesY.col(i);
+		cv::Mat _mappingMat, _translationMat;
+		P[i].getMappingMatrix(_mappingMat);
+		P[i].getTranslationMatrix(_translationMat);
+
+		cv::Mat _resMat = _shapeXY * _mappingMat.t() + _allOneMat * _translationMat;
+		newShapesX.col(i) = _resMat.col(0);
+		newShapesY.col(i) = _resMat.col(1);
+	}
+}
