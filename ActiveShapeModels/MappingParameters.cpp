@@ -35,7 +35,8 @@ void MappingParameters::getTranslationMatrix(cv::Mat &translationMatrix){
 }
 
 void MappingParameters::getMappedXY(const cv::Mat &shapeX, const cv::Mat &shapeY, cv::Mat &newShapeX, cv::Mat &newShapeY){
-	//this function will copy each elements to the newShapeX & newShapeY
+	//newShapeX & newShapeY should be created before
+	//this function will copy each element to the newShapeX & newShapeY
 	const int numberOfPoints = shapeX.rows;
 
 	cv::Mat _allOneMat(numberOfPoints, 2, CV_64F, cv::Scalar::all(1));

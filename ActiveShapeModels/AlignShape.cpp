@@ -10,7 +10,7 @@ AlignShape::~AlignShape(void)
 {
 }
 
-MappingParameters findBestMapping(const cv::Mat &Ax, const cv::Mat &Ay, 
+MappingParameters AlignShape::findBestMapping(const cv::Mat &Ax, const cv::Mat &Ay, 
 	const cv::Mat &Bx, const cv::Mat &By, const cv::Mat &WInOneColumn, const cv::Mat &W){
 	
 	cv::Mat _X1, _Y1, _X2, _Y2;
@@ -78,25 +78,79 @@ MappingParameters findBestMapping(const cv::Mat &Ax, const cv::Mat &Ay,
 }
 
 
-void caculateNewCoordinatesForTrainingShapes(const cv::Mat &shapesX, const cv::Mat &shapesY, 
+void AlignShape::caculateNewCoordinatesForTrainingShapes(const cv::Mat &shapesX, const cv::Mat &shapesY, 
 	std::vector<MappingParameters> &P, cv::Mat &newShapesX, cv::Mat &newShapesY){
-
+	//newShapesX & newShapesY should be created before
 	const int numberOfShapes = shapesX.cols;
 	const int numberOfPoints = shapesX.rows;
 	cv::Mat _shapeXY(numberOfPoints, 2, CV_64F);
-	newShapesX = cv::Mat_<double>(numberOfPoints, numberOfShapes);
-	newShapesY = cv::Mat_<double>(numberOfPoints, numberOfShapes);
 
 	for(int i = 0; i < numberOfShapes; i++){
 		P[i].getMappedXY(shapesX.col(i), shapesY.col(i), newShapesX.col(i), newShapesY.col(i));
 	}
 }
 
-void getMeanShape(const cv::Mat &shapesX, const cv::Mat &shapesY, cv::Mat &meanShapeX, cv::Mat &meanShapeY){
+void AlignShape::getMeanShape(const cv::Mat &shapesX, const cv::Mat &shapesY, cv::Mat &meanShapeX, cv::Mat &meanShapeY){
+	//meanShapeX & meanShapeY will be created in this function
 	const int numberOfShapes = shapesX.cols;
 	const int numberOfPoints = shapesX.rows;
 	cv::Mat _allOneMat(numberOfPoints, 1, CV_64F, cv::Scalar::all(1));
 	
 	meanShapeX = 1.0 / numberOfShapes * (shapesX * _allOneMat);
 	meanShapeY = 1.0 / numberOfShapes * (shapesY * _allOneMat);
+}
+
+double AlignShape::getDistanceOfTwoShapes(const cv::Mat &A, const cv::Mat &B){
+	cv::Mat AtA = A.t() * A;
+	cv::Mat BtB = B.t() * B;
+	return sqrt(AtA.at<double>(0, 0) + BtB.at<double>(0, 0));
+}
+
+void AlignShape::alignTrainingShapes(const cv::Mat &trainingShapesX, const cv::Mat &trainingShapesY, 
+	const cv::Mat &WInOneColumn, const cv::Mat &W, const int iterationTimeThreshold, const double convergencyThreshold,
+	cv::Mat &newShapesX, cv::Mat &newShapesY, cv::Mat &meanShapeX, cv::Mat &meanShapeY)
+{	
+	//newShapesX & newShapesY will be created in this function
+
+	const int numberOfShapes = trainingShapesX.cols;
+	const int numberOfPoints = trainingShapesX.rows;
+	//align each shape to shape[0]
+	cv::Mat _newShapesX = cv::Mat(numberOfPoints, numberOfShapes, CV_64F);
+	cv::Mat _newShapesY = cv::Mat(numberOfPoints, numberOfShapes, CV_64F);
+	std::vector<MappingParameters> P;
+
+	for(int i = 1; i < numberOfShapes; i++){
+		P[i] = findBestMapping(trainingShapesX.col(0), trainingShapesY.col(0), trainingShapesX.col(i), trainingShapesY.col(i),
+			WInOneColumn, W);
+	}
+	caculateNewCoordinatesForTrainingShapes(trainingShapesX, trainingShapesY, P, _newShapesX, _newShapesY);
+
+	cv::Mat _meanShapeX, _meanShapeY;
+	getMeanShape(_newShapesX, _newShapesY, _meanShapeX, _meanShapeY);
+
+	MappingParameters POfMeanShape;
+	POfMeanShape = findBestMapping(trainingShapesX.col(0), trainingShapesY.col(0), _meanShapeX, _meanShapeY, WInOneColumn, W);
+	POfMeanShape.getMappedXY(_meanShapeX, _meanShapeY, _meanShapeX, _meanShapeY);
+
+	cv::Mat _lastMeanShapeX, _lastMeanShapeY;
+	
+	for(int i = 0; i < iterationTimeThreshold; i++){
+		_lastMeanShapeX = _meanShapeX;
+		_lastMeanShapeY = _meanShapeY;
+		for(int i = 0; i < numberOfShapes; i++){
+			P[i] = findBestMapping(_meanShapeX, _meanShapeY, trainingShapesX.col(i), trainingShapesY.col(i), WInOneColumn, W);
+		}
+		caculateNewCoordinatesForTrainingShapes(trainingShapesX, trainingShapesY, P, _newShapesX, _newShapesY);
+		getMeanShape(_newShapesX, _newShapesY, _meanShapeX, _meanShapeY);
+
+		if(getDistanceOfTwoShapes(_meanShapeX - _lastMeanShapeX, _meanShapeY - _lastMeanShapeY) < convergencyThreshold){
+			break;
+		}
+	}
+
+	//return 
+	newShapesX = _newShapesX;
+	newShapesY = _newShapesY;
+	meanShapeX = _meanShapeX;
+	meanShapeY = _meanShapeY;
 }
