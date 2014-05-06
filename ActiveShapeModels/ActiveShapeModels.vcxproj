@@ -68,6 +68,7 @@
   <ItemGroup>
     <ClCompile Include="AlignShape.cpp" />
     <ClCompile Include="FileManager.cpp" />
+    <ClCompile Include="LocalFeature.cpp" />
     <ClCompile Include="MappingParameters.cpp" />
     <ClCompile Include="TrainingData.cpp" />
     <ClCompile Include="源.cpp" />
@@ -75,6 +76,7 @@
   <ItemGroup>
     <ClInclude Include="AlignShape.h" />
     <ClInclude Include="FileManager.h" />
+    <ClInclude Include="LocalFeature.h" />
     <ClInclude Include="MappingParameters.h" />
     <ClInclude Include="TrainingData.h" />
   </ItemGroup>

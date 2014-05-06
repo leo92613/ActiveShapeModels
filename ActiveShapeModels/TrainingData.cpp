@@ -60,3 +60,5 @@ void TrainingData::generateGradientImages(){
 		gradientImages.push_back(grad);
 	}
 }
+
+void 
