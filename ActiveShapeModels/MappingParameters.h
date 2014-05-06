@@ -6,5 +6,6 @@ public:
 	~MappingParameters(void);
 
 	double scale, rotation, translationX, translationY;
+	void caculateNewCoordinates(double x, double y, double &resX, double &resY);
 };
 
