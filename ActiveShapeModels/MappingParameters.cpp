@@ -18,12 +18,18 @@ void MappingParameters::caculateNewCoordinates(double x, double y, double &resX,
 }
 
 void MappingParameters::getMappingMatrix(cv::Mat &mappingMatrix){
+	//return a matrix like
+	//			[ScosR	-SsinR]
+	//			[SsinR	 ScosR]
 	double SCosR = scale * cos(rotation), SSinR = scale * sin(rotation);
 	mappingMatrix = (cv::Mat_<double>(2, 2) << SCosR, -SSinR,
 												SSinR, SCosR);
 }
 
 void MappingParameters::getTranslationMatrix(cv::Mat &translationMatrix){
-	translationMatrix = (cv::Mat_<double>(2, 1) << translationX,
-													translationY);
+	//return a matrix like
+	//					[tx 0]
+	//					[0 ty]
+	translationMatrix = (cv::Mat_<double>(2, 2) << translationX, 0
+													0, translationY);
 }
