@@ -66,18 +66,24 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ActiveShapeModels.cpp" />
     <ClCompile Include="AlignShape.cpp" />
+    <ClCompile Include="Constant.cpp" />
     <ClCompile Include="FileManager.cpp" />
     <ClCompile Include="LocalFeature.cpp" />
     <ClCompile Include="MappingParameters.cpp" />
+    <ClCompile Include="PCAShapeModel.cpp" />
     <ClCompile Include="TrainingData.cpp" />
     <ClCompile Include="源.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ActiveShapeModels.h" />
     <ClInclude Include="AlignShape.h" />
+    <ClInclude Include="Constant.h" />
     <ClInclude Include="FileManager.h" />
     <ClInclude Include="LocalFeature.h" />
     <ClInclude Include="MappingParameters.h" />
+    <ClInclude Include="PCAShapeModel.h" />
     <ClInclude Include="TrainingData.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

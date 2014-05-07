@@ -17,6 +17,11 @@ void MappingParameters::caculateNewCoordinates(double x, double y, double &resX,
 	resY = x * SSinR + y * SCosR + translationY;
 }
 
+void MappingParameters::inverse(){
+	scale = 1.0 / scale;
+	rotation = -rotation;
+}
+
 void MappingParameters::getMappingMatrix(cv::Mat &mappingMatrix){
 	//return a matrix like
 	//			[ScosR	-SsinR]
@@ -34,7 +39,8 @@ void MappingParameters::getTranslationMatrix(cv::Mat &translationMatrix){
 													0, translationY);
 }
 
-void MappingParameters::getAlignedXY(const cv::Mat &shapeX, const cv::Mat &shapeY, cv::Mat &newShapeX, cv::Mat &newShapeY){
+void MappingParameters::getAlignedXY(const cv::Mat &shapeX, const cv::Mat &shapeY, 
+	cv::Mat &newShapeX, cv::Mat &newShapeY, const double transRatio = 1.0){
 	//newShapeX & newShapeY should be created before
 	//this function will copy each element to the newShapeX & newShapeY
 	const int numberOfPoints = shapeX.rows;
@@ -48,7 +54,7 @@ void MappingParameters::getAlignedXY(const cv::Mat &shapeX, const cv::Mat &shape
 	getMappingMatrix(_mappingMat);
 	getTranslationMatrix(_translationMat);
 
-	cv::Mat _resMat = _shapeXY * _mappingMat.t() + _allOneMat * _translationMat;
+	cv::Mat _resMat = _shapeXY * _mappingMat.t() + transRatio * _allOneMat * _translationMat;
 	_resMat.col(0).copyTo(newShapeX);
 	_resMat.col(1).copyTo(newShapeY);
 }

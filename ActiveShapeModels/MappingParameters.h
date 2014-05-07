@@ -11,8 +11,10 @@ public:
 	double scale, rotation, translationX, translationY;
 	void caculateNewCoordinates(double x, double y, double &resX, double &resY);
 
+	void inverse();
+
 	void getMappingMatrix(cv::Mat &mappingMatrix);
 	void getTranslationMatrix(cv::Mat &translationMatrix);
-	void getAlignedXY(const cv::Mat &shapeX, const cv::Mat &shapeY, cv::Mat &newShapeX, cv::Mat &newShapeY);
+	void getAlignedXY(const cv::Mat &shapeX, const cv::Mat &shapeY, 
+		cv::Mat &newShapeX, cv::Mat &newShapeY, const double transRatio = 1.0);
 };
-

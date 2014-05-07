@@ -61,3 +61,46 @@ void TrainingData::generateGradientImages(){
 	}
 }
 
+void TrainingData::generateLocalFeatures(){
+	const int numberOfPoints = trainingShapesX.rows;
+
+	for(int i = 0; i < numberOfPoints; i++){
+		LocalFeature _localFeature;
+		_localFeature.computeLocalFeature(trainingShapesX, 
+			trainingShapesY, 
+			gradientImages, 
+			i);
+		localFeatures.push_back(_localFeature);
+	}
+}
+
+void TrainingData::generatePCAShapeModel(){
+	pcaShapeModel.generateBases(alignedShapesX, alignedShapesY, meanAlignedShapesX, meanAlignedShapesY);
+}
+
+void TrainingData::alignShapes(){
+	AlignShape alignShape;
+	alignShape.alignTrainingShapes(trainingShapesX, 
+		trainingShapesY, 
+		WInOneColumn, 
+		W, 
+		c_alignIterationTimeThreshold, 
+		c_alignConvergencyThreshold, 
+		alignedShapesX, 
+		alignedShapesY, 
+		meanAlignedShapesX, 
+		meanAlignedShapesY);
+}
+
+void TrainingData::findBestShifts(const cv::Mat &shapeX, const cv::Mat &shapeY, const cv::Mat &gradientImage,
+								  cv::Mat &shiftsX, cv::Mat &shiftsY){
+	const int numberOfPoints = shapeX.rows;
+	
+	shiftsX = cv::Mat(numberOfPoints, 0, CV_64F);
+	shiftsY = cv::Mat(numberOfPoints, 0, CV_64F);
+
+	for(int i = 0; i < numberOfPoints; i++){
+		localFeatures[i].findBestShift(shapeX, shapeY, gradientImage, i, 
+			shiftsX.at<double>(i, 0), shiftsY.at<double>(i, 0));
+	}
+}
