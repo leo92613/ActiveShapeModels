@@ -48,7 +48,7 @@ void PCAShapeModel::generateBases(const cv::Mat &alignedShapesX, const cv::Mat &
 
 void PCAShapeModel::findBestDeforming(const cv::Mat &X0, const cv::Mat &Y0,
 	const cv::Mat &sX, const cv::Mat &sY, const MappingParameters &_para, 
-	cv::Mat &resX, cv::Mat &resY){
+	const cv::Mat &WInOneColumn, const cv::Mat &W, cv::Mat &resX, cv::Mat &resY){
 	
 	MappingParameters para = _para;
 	para.inverse();
@@ -58,12 +58,35 @@ void PCAShapeModel::findBestDeforming(const cv::Mat &X0, const cv::Mat &Y0,
 	X += (1.0 / para.scale) * sX;
 	Y += (1.0 / para.scale) * sY;
 
+	MappingParameters para2MeanShape;
+	AlignShape alignShape;
+
+	para2MeanShape = alignShape.findBestMapping(meanShapeX, meanShapeY, X, Y, WInOneColumn, W);
+	para2MeanShape.getAlignedXY(X, Y, X, Y);
+
 	cv::Mat XY;
 	mergeXY(X, Y, XY);
 
 	cv::Mat b;
 	pca.project(XY, b);
+
+	const int numberOfComponents = b.rows;
+
+	for(int i = 0; i < numberOfComponents; i++){
+		double threshold = 3.0 * sqrt(pca.eigenvalues.at<double>(i));
+		if(b.at<double>(i) < -threshold){
+			b.at<double>(i) = -threshold;
+		}
+
+		if(b.at<double>(i) > threshold){
+			b.at<double>(i) = threshold;
+		}
+	}
+
 	pca.backProject(b, XY);
 
 	splitXY(XY, resX, resY);
+
+	para2MeanShape.inverse();
+	para2MeanShape.getAlignedXY(resX, resY, resX, resY);
 }

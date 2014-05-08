@@ -104,3 +104,8 @@ void TrainingData::findBestShifts(const cv::Mat &shapeX, const cv::Mat &shapeY, 
 			shiftsX.at<double>(i, 0), shiftsY.at<double>(i, 0));
 	}
 }
+
+void TrainingData::findBestDeforming(const cv::Mat &X0, const cv::Mat &Y0, const cv::Mat &sX, const cv::Mat &sY,
+		 const MappingParameters &_para, cv::Mat &resX, cv::Mat &resY){
+	pcaShapeModel.findBestDeforming(X0, Y0, sX, sY, _para, WInOneColumn, W, resX, resY);
+}

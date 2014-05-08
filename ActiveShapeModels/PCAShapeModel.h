@@ -4,6 +4,7 @@
 #include <opencv2\imgproc\imgproc.hpp>
 #include "Constant.h"
 #include "MappingParameters.h"
+#include "AlignShape.h"
 
 class PCAShapeModel
 {
@@ -23,6 +24,6 @@ public:
 	
 	void findBestDeforming(const cv::Mat &X0, const cv::Mat &Y0,
 		const cv::Mat &sX, const cv::Mat &sY, const MappingParameters &_para, 
-		cv::Mat &resX, cv::Mat &resY);
+		const cv::Mat &WInOneColumn, const cv::Mat &W, cv::Mat &resX, cv::Mat &resY);
 };
 

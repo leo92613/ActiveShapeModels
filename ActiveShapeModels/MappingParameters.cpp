@@ -40,7 +40,7 @@ void MappingParameters::getTranslationMatrix(cv::Mat &translationMatrix){
 }
 
 void MappingParameters::getAlignedXY(const cv::Mat &shapeX, const cv::Mat &shapeY, 
-	cv::Mat &newShapeX, cv::Mat &newShapeY, const double transRatio = 1.0){
+	cv::Mat &newShapeX, cv::Mat &newShapeY, const double transRatio){
 	//newShapeX & newShapeY should be created before
 	//this function will copy each element to the newShapeX & newShapeY
 	const int numberOfPoints = shapeX.rows;

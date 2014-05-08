@@ -32,7 +32,7 @@ void ActiveShapeModels::iterationSearch(TrainingData &trainingData){
 		
 		//para.getAlignedXY(lastShapeX, lastShapeY, shapeX, shapeY);
 
-		trainingData.pcaShapeModel.findBestDeforming(lastShapeX, lastShapeY, shiftX, shiftY,
+		trainingData.findBestDeforming(lastShapeX, lastShapeY, shiftX, shiftY,
 			para, shapeX, shapeY);
 	}
 }
