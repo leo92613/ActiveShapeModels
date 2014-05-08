@@ -2,12 +2,14 @@
 
 #include <opencv2\core\core.hpp>
 #include <vector>
+#include <string>
 #include <opencv2\imgproc\imgproc.hpp>
 #include "LocalFeature.h"
 #include "AlignShape.h"
 #include "TrainingData.h"
 #include "Constant.h"
 #include "PCAShapeModel.h"
+#include "FileManager.h"
 
 class TrainingData
 {
@@ -22,6 +24,8 @@ public:
 
 	TrainingData(void);
 	~TrainingData(void);
+
+	void loadDataAndImagesFromCSV(const string &csvFilename, const string &imagesDir);
 
 	double getWk(int k);
 	void generateWAndWInOneColumn();

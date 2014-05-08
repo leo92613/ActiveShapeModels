@@ -9,6 +9,10 @@ TrainingData::~TrainingData(void)
 {
 }
 
+void TrainingData::loadDataAndImagesFromCSV(const string &csvFilename, const string &imagesDir){
+	FileManager fileManager;
+	fileManager.loadDataAndImagesFromCSV(csvFilename, imagesDir, trainingShapesX, trainingShapesY, trainingImages);
+}
 
 double TrainingData::getWk(int k){
 	const int numberOfShapes = trainingShapesX.cols;

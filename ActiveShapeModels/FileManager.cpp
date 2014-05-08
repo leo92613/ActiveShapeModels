@@ -1,7 +1,4 @@
 #include "FileManager.h"
-#include "opencv2\opencv.hpp"
-#include "opencv2\core\core.hpp"
-#include "opencv2\highgui\highgui.hpp"
 
 FileManager::FileManager(void)
 {
@@ -27,3 +24,93 @@ void FileManager::getFilenamesByPathAndExtension(string path, string extension, 
 	}
 }
 
+double FileManager::string2Double(const string &s){
+	istringstream stream(s);
+	double result;
+	stream >> result;
+	return result;
+}
+
+cv::Mat FileManager::list2Vec(list<double> &L){
+	const int rows = L.size();
+	cv::Mat vec(rows, 1, CV_64F);
+
+	list<double>::iterator iter = L.begin();
+	for(int nrow = 0; iter != L.end(); iter++, nrow++){
+		vec.at<double>(nrow) = *iter;
+	}
+
+	return vec;
+}
+
+cv::Mat FileManager::list2Mat(list<cv::Mat> &L){
+	list<cv::Mat>::iterator iter = L.begin();
+	cv::Mat &vec0 = *iter;
+	
+	const int rows = vec0.rows;
+	const int cols = L.size();
+
+	cv::Mat mat(rows, cols, CV_64F);
+
+	for(int ncol = 0; iter != L.end(); iter++, ncol++){
+		cv::Mat &vec = *iter;
+		vec.copyTo(mat.col(ncol));
+	}
+
+	return mat;
+}
+
+void FileManager::loadDataAndImagesFromCSV(const string &filename, const string &imagesDir,
+	cv::Mat &shapesX, cv::Mat &shapesY, vector<cv::Mat> &images){
+	ifstream fin(filename.c_str());
+
+	if(fin.is_open()){
+		// ignore the first line
+		string line; // line is the content of each line
+		const char seperator = ',';
+		
+		list<string> imageFilenames;
+		list<cv::Mat> lShapesX;
+		list<cv::Mat> lShapesY;
+
+		while(getline(fin, line)){
+			istringstream lineStream(line);
+			string field;
+			
+			// get image filename
+			getline(lineStream, field, seperator);
+			imageFilenames.push_back(field);
+
+			list<double> X, Y;
+
+			bool isX = true;
+			while(getline(lineStream, field, seperator)){
+				if(isX)
+					X.push_back(string2Double(field));
+				else
+					Y.push_back(string2Double(field));
+
+				isX = !isX;
+			}
+
+			lShapesX.push_back(list2Vec(X));
+			lShapesY.push_back(list2Vec(Y));
+		}
+
+		shapesX = list2Mat(lShapesX);
+		shapesY = list2Mat(lShapesY);
+
+		// load images
+		for(list<string>::iterator iter = imageFilenames.begin(); iter != imageFilenames.end(); iter++){
+			string &imageFilename = *iter;
+			string imagePath = imagesDir + imageFilename;
+			cv::Mat image = cv::imread(imagePath, CV_LOAD_IMAGE_GRAYSCALE);
+
+			images.push_back(image);
+		}
+		
+	} else {
+		// fail to open file
+		cerr << "Cannot open .csv file : " << filename << endl;
+	}
+}
