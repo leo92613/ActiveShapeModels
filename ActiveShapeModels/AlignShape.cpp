@@ -3,6 +3,7 @@
 #include <iostream>
 using std::cout;
 using std::endl;
+#include "ResultProcessor.h"
 //end debug
 
 AlignShape::AlignShape(void)
@@ -152,8 +153,15 @@ void AlignShape::alignTrainingShapes(const cv::Mat &trainingShapesX, const cv::M
 	cv::Mat _lastMeanShapeX, _lastMeanShapeY;
 	
 	for(int i = 0; i < iterationTimeThreshold; i++){
-		_lastMeanShapeX = _meanShapeX;
-		_lastMeanShapeY = _meanShapeY;
+		for(int j = 0; j < 2; j++){
+			//debug
+			//ResultProcessor resultProcessor;
+			//resultProcessor.showResultImage(_newShapesX.col(j), _newShapesY.col(j), cv::Mat(640, 480, cv_32F, cv::Scalar::all(0)), "aligned result");
+			//end debug
+		}
+
+		_meanShapeX.copyTo(_lastMeanShapeX);
+		_meanShapeY.copyTo(_lastMeanShapeY);
 		for(int i = 0; i < numberOfShapes; i++){
 			P[i] = findBestMapping(_meanShapeX, _meanShapeY, trainingShapesX.col(i), trainingShapesY.col(i), WInOneColumn, W);
 		}

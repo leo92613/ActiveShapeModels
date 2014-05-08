@@ -25,7 +25,7 @@ void TrainingData::loadDataAndImagesFromCSV(const string &csvFilename, const str
 
 	FileManager fileManager;
 	fileManager.loadDataAndImagesFromCSV(csvFilename, imagesDir, trainingShapesX, trainingShapesY, trainingImages);
-
+	
 	//debug
 	//cout << trainingShapesX.col(0) << endl;
 	//system("pause");
@@ -83,11 +83,13 @@ void TrainingData::generateGradientImages(){
 		cv::addWeighted(gradX, 0.5, gradY, 0.5, 0, grad);
 		
 		grad.convertTo(grad, CV_64F);
+		//normalize(grad, grad, 0, 255, cv::NORM_MINMAX, -1);
 		gradientImages.push_back(grad);
 
 		//debug
+		//cout << grad.col(1) << endl;
 		//cv::namedWindow("Check graident image", CV_WINDOW_AUTOSIZE);
-		//cv::imshow("Check graident image" ,grad);
+		//cv::imshow("Check graident image", grad);
 		//cv::waitKey(0);
 		//end debug
 	}
@@ -144,6 +146,13 @@ void TrainingData::findBestShifts(const cv::Mat &shapeX, const cv::Mat &shapeY, 
 		localFeatures[i].findBestShift(shapeX, shapeY, gradientImage, i, 
 			shiftsX.at<double>(i, 0), shiftsY.at<double>(i, 0));
 	}
+
+	//debug
+	cout << "shiftX : " << endl;
+	cout << shiftsX << endl;
+	cout << "shiftY : " << endl;
+	cout << shiftsY << endl;
+	//end debug
 }
 
 void TrainingData::findBestDeforming(const cv::Mat &X0, const cv::Mat &Y0, const cv::Mat &sX, const cv::Mat &sY,

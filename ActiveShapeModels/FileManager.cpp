@@ -120,10 +120,11 @@ void FileManager::loadDataAndImagesFromCSV(const string &filename, const string 
 			string &imageFilename = *iter;
 			string imagePath = imagesDir + imageFilename + ".jpg";
 			cv::Mat image = cv::imread(imagePath, CV_LOAD_IMAGE_GRAYSCALE);
-
+			//image.convertTo(image, CV_64F);
 			//debug
 			//cout << imagePath << endl;
 			//cv::namedWindow("Check input image", CV_WINDOW_AUTOSIZE);
+			//cv::normalize(image, image, 0, 255, cv::NORM_MINMAX, CV_8UC1);
 			//cv::imshow("Check input image", image);
 			//cv::waitKey(0);
 			//end debug
@@ -135,4 +136,9 @@ void FileManager::loadDataAndImagesFromCSV(const string &filename, const string 
 		// fail to open file
 		cerr << "Cannot open .csv file : " << filename << endl;
 	}
+}
+
+void FileManager::loadImage(const string &filename, cv::Mat &image){
+	image = cv::imread(filename, CV_LOAD_IMAGE_GRAYSCALE);
+	image.convertTo(image, CV_64F);
 }

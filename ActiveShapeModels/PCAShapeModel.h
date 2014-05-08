@@ -26,4 +26,3 @@ public:
 		const cv::Mat &sX, const cv::Mat &sY, const MappingParameters &_para, 
 		const cv::Mat &WInOneColumn, const cv::Mat &W, cv::Mat &resX, cv::Mat &resY);
 };
-

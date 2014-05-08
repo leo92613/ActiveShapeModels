@@ -21,6 +21,7 @@ public:
 	cv::Mat list2Vec(list<double> &L);
 	cv::Mat list2Mat(list<cv::Mat> &L);
 
+	void loadImage(const string &filename, cv::Mat &image);
 	void loadDataAndImagesFromCSV(const string &filename,	const string &imagesDir,
 		cv::Mat &shapesX, cv::Mat &shapesY, vector<cv::Mat> &images);
 

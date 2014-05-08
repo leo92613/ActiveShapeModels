@@ -23,7 +23,7 @@ void LocalFeature::computeLocalFeature(const cv::Mat &trainingShapesX, const cv:
 	const int prev = (curr - 1 + numberOfPoints) % numberOfPoints;
 	const int next = (curr + 1) % numberOfPoints;
 
-	cv::Mat featureVectors(_featureSize * 2 + 1, numberOfShapes, CV_64F);
+	cv::Mat featureVectors(c_featureSize * 2 + 1, numberOfShapes, CV_64F);
 
 	for(int i = 0; i < numberOfShapes; i++){
 		double x0 = trainingShapesX.at<double>(curr, i);
@@ -42,7 +42,7 @@ void LocalFeature::computeLocalFeature(const cv::Mat &trainingShapesX, const cv:
 		//std::cout << gradientImages[i].size() << std::endl;
 		//end debug
 
-		for(int scale = -_featureSize; scale <= _featureSize; scale++){
+		for(int scale = -c_featureSize; scale <= c_featureSize; scale++){
 			int _x = x0 + dx * scale;
 			int _y = y0 + dy * scale;
 			if(_x < 0 || _x >= gradientImages[i].rows || _y < 0 || _y >= gradientImages[i].cols) continue;
@@ -51,12 +51,13 @@ void LocalFeature::computeLocalFeature(const cv::Mat &trainingShapesX, const cv:
 			//cv::imshow("Check graident image", gradientImages[i]);
 			//cv::waitKey(0);
 			//std::cout << gradientImages[i].at<double>(_x, _y) << std::endl;
-			//std::cout << featureVectors.at<double>(scale + _featureSize, i) << std::endl;
+			//std::cout << featureVectors.at<double>(scale + c_featureSize, i) << std::endl;
 			//std::cout << gradientImages[i].at<double>(0, 0) << std::endl;
 			//end debug
-			featureVectors.at<double>(scale + _featureSize, i) = gradientImages[i].at<double>(_x, _y);
+			featureVectors.at<double>(scale + c_featureSize, i) = gradientImages[i].at<double>(_x, _y);
 		}
 	}
+	std::cout << featureVectors << std::endl;
 
 	cv::calcCovarMatrix(featureVectors, covar, mean, CV_COVAR_NORMAL | CV_COVAR_COLS);
 }
@@ -67,8 +68,6 @@ void LocalFeature::findBestShift(const cv::Mat &shapeX, const cv::Mat &shapeY, c
 	const int numberOfPoints = shapeX.rows;
 	const int prev = (curr - 1 + numberOfPoints) % numberOfPoints;
 	const int next = (curr + 1) % numberOfPoints;
-
-	cv::Mat features = cv::Mat(_featureSize * 4 + 1, 1, CV_64F);
 
 	double x0 = shapeX.at<double>(curr, 0);
 	double x1 = shapeX.at<double>(prev, 0) - x0;
@@ -81,24 +80,28 @@ void LocalFeature::findBestShift(const cv::Mat &shapeX, const cv::Mat &shapeY, c
 	double _normd = sqrt(dx * dx + dy * dy);
 	dx /= _normd; dy /= _normd;
 
-	for(int scale = -2 * _featureSize; scale <= 2 * _featureSize; scale++){
+	int idShift = c_shiftWindowSize + c_featureSize;
+
+	cv::Mat features = cv::Mat(idShift * 2 + 1, 1, CV_64F);
+
+	for(int scale = - idShift; scale <= idShift; scale++){
 		int _x = x0 + dx * scale;
 		int _y = y0 + dy * scale;
 
 		if(_x < 0 || _x >= gradientImage.rows || _y < 0 || _y >= gradientImage.cols) continue;
 
-		features.at<double>(scale + 2 * _featureSize) = gradientImage.at<double>(_x, _y);
+		features.at<double>(scale + idShift) = gradientImage.at<double>(_x, _y);
 	}
 
 	double maxDist = -1e60;
-	int maxDist_x = -1, maxDist_y = -1;
-	for(int scale = -2 * _featureSize; scale <= _featureSize; scale++){
+	int maxDist_x = x0, maxDist_y = y0 ;
+	for(int scale =  - c_shiftWindowSize; scale <= c_shiftWindowSize; scale++){
 		int _x = x0 + dx * scale;
 		int _y = y0 + dy * scale;
 
 		if(_x < 0 || _x >= gradientImage.rows || _y < 0 || _y >= gradientImage.cols) continue;
 
-		cv::Mat featureAtXY = features.rowRange(scale + 2 * _featureSize, scale + 3 * _featureSize);
+		cv::Mat featureAtXY = features.rowRange(scale - c_featureSize + idShift, scale + c_featureSize + idShift + 1);
 
 		double _dist = cv::Mahalanobis(featureAtXY, mean, covar);
 		if(_dist > maxDist){
@@ -106,7 +109,7 @@ void LocalFeature::findBestShift(const cv::Mat &shapeX, const cv::Mat &shapeY, c
 			maxDist_x = _x;
 			maxDist_y = _y;
 		}
-	}
-	shiftX = maxDist_x - shapeX.at<double>(curr, 0);
-	shiftY = maxDist_y - shapeY.at<double>(curr, 0);
+	}   
+	shiftX = maxDist_x - x0;
+	shiftY = maxDist_y - y0;
 }

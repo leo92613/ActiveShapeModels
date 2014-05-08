@@ -12,9 +12,15 @@ MappingParameters::MappingParameters(void)
 	rotation = translationX = translationY = 0.0;
 }
 
-
 MappingParameters::~MappingParameters(void)
 {
+}
+
+ostream& operator << (ostream &os, const MappingParameters &para){
+	os << "[scale : " << para.scale << "; rotation : " << para.rotation;
+	os << "; transX : " << para.translationX << " ; transY : " << para.translationY;
+	os << ";]";
+	return os;
 }
 
 void MappingParameters::caculateNewCoordinates(double x, double y, double &resX, double &resY){

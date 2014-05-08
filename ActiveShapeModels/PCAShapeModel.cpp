@@ -4,6 +4,8 @@
 #include <iostream>
 using std::cout;
 using std::endl;
+#include "ResultProcessor.h"
+#include <opencv2\opencv.hpp>
 //end debug
 
 PCAShapeModel::PCAShapeModel(void)
@@ -96,7 +98,7 @@ void PCAShapeModel::findBestDeforming(const cv::Mat &X0, const cv::Mat &Y0,
 	const int numberOfComponents = b.rows;
 
 	for(int i = 0; i < numberOfComponents; i++){
-		double threshold = 3.0 * sqrt(pca.eigenvalues.at<double>(i));
+		double threshold = 3.0 * sqrt(abs(pca.eigenvalues.at<double>(i)));
 		if(b.at<double>(i) < -threshold){
 			b.at<double>(i) = -threshold;
 		}
@@ -106,10 +108,34 @@ void PCAShapeModel::findBestDeforming(const cv::Mat &X0, const cv::Mat &Y0,
 		}
 	}
 
+	//debug
+	//cout << "b:" << endl;
+	//cout << b << endl;
+	//cout << "eigenvalues: " << endl;
+	//cout << pca.eigenvalues << endl;
+	//end debug
+
 	pca.backProject(b, XY);
 
 	splitXY(XY, resX, resY);
 
+	//debug
+	//cout << "resX _ old : " << endl;
+	//cout << resX << endl;
+	//cout << "resY _ old : " << endl;
+	//cout << resY << endl;
+	ResultProcessor resultProcessor;
+	cv::Mat tmpMat = cv::Mat(640, 480, CV_32F, cv::Scalar::all(0));
+	resultProcessor.showResultImage(resX, resY, tmpMat, "pca result");
+	//end debug
+
 	para2MeanShape.inverse();
 	para2MeanShape.getAlignedXY(resX, resY, resX, resY);
+
+	//debug
+	cout << "resX _ new: " << endl;
+	cout << resX << endl;
+	cout << "resY _ new : " << endl;
+	cout << resY << endl;
+	//end debug
 }

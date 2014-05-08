@@ -73,6 +73,7 @@
     <ClCompile Include="LocalFeature.cpp" />
     <ClCompile Include="MappingParameters.cpp" />
     <ClCompile Include="PCAShapeModel.cpp" />
+    <ClCompile Include="ResultProcessor.cpp" />
     <ClCompile Include="TrainingData.cpp" />
     <ClCompile Include="源.cpp" />
   </ItemGroup>
@@ -84,6 +85,7 @@
     <ClInclude Include="LocalFeature.h" />
     <ClInclude Include="MappingParameters.h" />
     <ClInclude Include="PCAShapeModel.h" />
+    <ClInclude Include="ResultProcessor.h" />
     <ClInclude Include="TrainingData.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

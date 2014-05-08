@@ -1,12 +1,17 @@
 #pragma once
 
 #include <opencv2\core\core.hpp>
+#include <iostream>
+
+using std::ostream;
 
 class MappingParameters
 {
 public:
 	MappingParameters(void);
 	~MappingParameters(void);
+
+	friend ostream& operator << (ostream &os, const MappingParameters &para);
 
 	double scale, rotation, translationX, translationY;
 	void caculateNewCoordinates(double x, double y, double &resX, double &resY);
