@@ -1,9 +1,15 @@
 #include "MappingParameters.h"
-#include <cmath>
+
+//debug
+#include <iostream>
+using std::cout;
+using std::endl;
+//end debug
 
 MappingParameters::MappingParameters(void)
 {
-	scale = rotation = translationX = translationY = 0;
+	scale = 1.0;
+	rotation = translationX = translationY = 0.0;
 }
 
 
@@ -47,12 +53,21 @@ void MappingParameters::getAlignedXY(const cv::Mat &shapeX, const cv::Mat &shape
 
 	cv::Mat _allOneMat(numberOfPoints, 2, CV_64F, cv::Scalar::all(1));
 	cv::Mat _shapeXY(numberOfPoints, 2, CV_64F);
-	_shapeXY.col(0) = shapeX;
-	_shapeXY.col(1) = shapeY;
-		
+	shapeX.col(0).copyTo(_shapeXY.col(0));
+	shapeY.col(0).copyTo(_shapeXY.col(1));
+	
+	//debug
+	//cout << "shapeX.col(0)" << endl << shapeX.col(0) << endl;
+	//cout << "_shapeXY" << _shapeXY << endl;
+	//end debug
+
 	cv::Mat _mappingMat, _translationMat;
 	getMappingMatrix(_mappingMat);
 	getTranslationMatrix(_translationMat);
+	//debug
+	//cout << "_mappingMat" << _mappingMat << endl;
+	//cout << "_translationMat" << _translationMat << endl;
+	//end debug
 
 	cv::Mat _resMat = _shapeXY * _mappingMat.t() + transRatio * _allOneMat * _translationMat;
 	_resMat.col(0).copyTo(newShapeX);

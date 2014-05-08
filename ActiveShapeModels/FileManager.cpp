@@ -73,6 +73,8 @@ void FileManager::loadDataAndImagesFromCSV(const string &filename, const string 
 		list<cv::Mat> lShapesX;
 		list<cv::Mat> lShapesY;
 
+		getline(fin, line);
+
 		while(getline(fin, line)){
 			istringstream lineStream(line);
 			string field;
@@ -80,6 +82,10 @@ void FileManager::loadDataAndImagesFromCSV(const string &filename, const string 
 			// get image filename
 			getline(lineStream, field, seperator);
 			imageFilenames.push_back(field);
+
+			//debug
+			//cout << field << endl;
+			//end debug
 
 			list<double> X, Y;
 
@@ -92,6 +98,10 @@ void FileManager::loadDataAndImagesFromCSV(const string &filename, const string 
 
 				isX = !isX;
 			}
+			
+			//debug
+			//cout << list2Vec(Y) << endl;
+			//end debug
 
 			lShapesX.push_back(list2Vec(X));
 			lShapesY.push_back(list2Vec(Y));
@@ -100,11 +110,23 @@ void FileManager::loadDataAndImagesFromCSV(const string &filename, const string 
 		shapesX = list2Mat(lShapesX);
 		shapesY = list2Mat(lShapesY);
 
+		//debug
+		//cout << shapesX.col(0) << endl;
+		//cout << shapesY.col(0) << endl;
+		//end debug
+
 		// load images
 		for(list<string>::iterator iter = imageFilenames.begin(); iter != imageFilenames.end(); iter++){
 			string &imageFilename = *iter;
-			string imagePath = imagesDir + imageFilename;
+			string imagePath = imagesDir + imageFilename + ".jpg";
 			cv::Mat image = cv::imread(imagePath, CV_LOAD_IMAGE_GRAYSCALE);
+
+			//debug
+			//cout << imagePath << endl;
+			//cv::namedWindow("Check input image", CV_WINDOW_AUTOSIZE);
+			//cv::imshow("Check input image", image);
+			//cv::waitKey(0);
+			//end debug
 
 			images.push_back(image);
 		}

@@ -23,6 +23,8 @@ public:
 	PCAShapeModel pcaShapeModel;
 
 	TrainingData(void);
+	TrainingData(const string &csvFilename, const string &imagesDir);
+	
 	~TrainingData(void);
 
 	void loadDataAndImagesFromCSV(const string &csvFilename, const string &imagesDir);
@@ -31,8 +33,8 @@ public:
 	void generateWAndWInOneColumn();
 	void generateGradientImages();
 	void generateLocalFeatures();
+	void generateAlignedShapes();
 	void generatePCAShapeModel();
-	void alignShapes();
 
 	void findBestShifts(const cv::Mat &shapeX, const cv::Mat &shapeY, const cv::Mat &gradientImage,
 						cv::Mat &shiftsX, cv::Mat &shiftsY);

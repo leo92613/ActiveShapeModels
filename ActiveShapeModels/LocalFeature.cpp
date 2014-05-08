@@ -1,5 +1,10 @@
 #include "LocalFeature.h"
 
+//debug
+#include <iostream>
+#include <opencv2\core\core.hpp>
+#include <opencv2\highgui\highgui.hpp>
+//end debug
 
 LocalFeature::LocalFeature(void)
 {
@@ -32,9 +37,23 @@ void LocalFeature::computeLocalFeature(const cv::Mat &trainingShapesX, const cv:
 		double _normd = sqrt(dx * dx + dy * dy);
 		dx /= _normd; dy /= _normd;
 
+		
+		//debug
+		//std::cout << gradientImages[i].size() << std::endl;
+		//end debug
+
 		for(int scale = -_featureSize; scale <= _featureSize; scale++){
 			int _x = x0 + dx * scale;
 			int _y = y0 + dy * scale;
+			if(_x < 0 || _x >= gradientImages[i].rows || _y < 0 || _y >= gradientImages[i].cols) continue;
+			//debug
+			//cv::namedWindow("Check graident image", CV_WINDOW_AUTOSIZE);
+			//cv::imshow("Check graident image", gradientImages[i]);
+			//cv::waitKey(0);
+			//std::cout << gradientImages[i].at<double>(_x, _y) << std::endl;
+			//std::cout << featureVectors.at<double>(scale + _featureSize, i) << std::endl;
+			//std::cout << gradientImages[i].at<double>(0, 0) << std::endl;
+			//end debug
 			featureVectors.at<double>(scale + _featureSize, i) = gradientImages[i].at<double>(_x, _y);
 		}
 	}
@@ -65,7 +84,10 @@ void LocalFeature::findBestShift(const cv::Mat &shapeX, const cv::Mat &shapeY, c
 	for(int scale = -2 * _featureSize; scale <= 2 * _featureSize; scale++){
 		int _x = x0 + dx * scale;
 		int _y = y0 + dy * scale;
-		features.at<double>(scale + 2 * _featureSize, 0) = gradientImage.at<double>(_x, _y);
+
+		if(_x < 0 || _x >= gradientImage.rows || _y < 0 || _y >= gradientImage.cols) continue;
+
+		features.at<double>(scale + 2 * _featureSize) = gradientImage.at<double>(_x, _y);
 	}
 
 	double maxDist = -1e60;
@@ -74,7 +96,10 @@ void LocalFeature::findBestShift(const cv::Mat &shapeX, const cv::Mat &shapeY, c
 		int _x = x0 + dx * scale;
 		int _y = y0 + dy * scale;
 
-		cv::Mat featureAtXY = features(cv::Range(0, 0), cv::Range(scale, scale + _featureSize - 1));
+		if(_x < 0 || _x >= gradientImage.rows || _y < 0 || _y >= gradientImage.cols) continue;
+
+		cv::Mat featureAtXY = features.rowRange(scale + 2 * _featureSize, scale + 3 * _featureSize);
+
 		double _dist = cv::Mahalanobis(featureAtXY, mean, covar);
 		if(_dist > maxDist){
 			maxDist = _dist;

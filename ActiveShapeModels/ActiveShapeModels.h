@@ -12,7 +12,7 @@ public:
 	cv::Mat image, gradiantImage;
 	cv::Mat shapeX, shapeY;
 
-	void creatInitialShape();
+	void creatInitialShape(TrainingData &trainingData);
 	void iterationSearch(TrainingData &trainingData);
 
 	ActiveShapeModels(void);

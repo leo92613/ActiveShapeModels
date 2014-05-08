@@ -1,5 +1,10 @@
 #include "PCAShapeModel.h"
 
+//debug
+#include <iostream>
+using std::cout;
+using std::endl;
+//end debug
 
 PCAShapeModel::PCAShapeModel(void)
 {
@@ -12,17 +17,35 @@ PCAShapeModel::~PCAShapeModel(void)
 
 void PCAShapeModel::mergeXY(const cv::Mat &X, const cv::Mat &Y, cv::Mat &XY){
 	const int rows = X.rows, cols = X.cols;
-	XY = cv::Mat(rows * 2, cols, X.type());
+	XY = cv::Mat(rows * 2, cols, X.type(), cv::Scalar::all(0));
 	
-	XY(cv::Range(0, rows - 1), cv::Range(0, cols - 1)) = X;
-	XY(cv::Range(rows, rows * 2 - 1), cv::Range(0, cols -1)) = Y;
+	//cannot copy like following code
+	//XY(cv::Range(0, rows - 1), cv::Range(0, cols - 1)) = X;
+	//XY(cv::Range(rows, rows * 2 - 1), cv::Range(0, cols -1)) = Y;
+	//should like following code
+	cv::Mat XYU(XY(cv::Range(0, rows), cv::Range(0, cols)));
+	cv::Mat XYD(XY.rowRange(rows, rows * 2));
+	X(cv::Range(0, rows), cv::Range(0, cols)).copyTo(XYU);
+	Y.rowRange(0, rows).copyTo(XYD);
+
+	//Range(start, end)  end should be the real value + 1
+
+	//debug
+	//cout << "X.col(0)" << endl << X.col(0) << endl;
+	//cout << "Y.col(0)" << endl << Y.col(0) << endl;
+	//cout << "XY.col(0)" << endl << XY.col(0) << endl;
+	//end debug
 }
 
 void PCAShapeModel::splitXY(const cv::Mat &XY, cv::Mat &X, cv::Mat &Y){
 	const int rows = XY.rows;
 	int rows2 = rows / 2;
-	X = XY.rowRange(cv::Range(0, rows2 - 1));
-	Y = XY.rowRange(cv::Range(rows2, rows - 1));
+	X = XY.rowRange(cv::Range(0, rows2));
+	Y = XY.rowRange(cv::Range(rows2, rows));
+
+	//debug
+	//cout << X << endl;
+	//end debug
 }
 
 void PCAShapeModel::generateBases(const cv::Mat &alignedShapesX, const cv::Mat &alignedShapesY, 
