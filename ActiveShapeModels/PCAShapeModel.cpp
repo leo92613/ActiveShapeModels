@@ -29,14 +29,6 @@ void PCAShapeModel::mergeXY(const cv::Mat &X, const cv::Mat &Y, cv::Mat &XY){
 	cv::Mat XYD(XY.rowRange(rows, rows * 2));
 	X(cv::Range(0, rows), cv::Range(0, cols)).copyTo(XYU);
 	Y.rowRange(0, rows).copyTo(XYD);
-
-	//Range(start, end)  end should be the real value + 1
-
-	//debug
-	//cout << "X.col(0)" << endl << X.col(0) << endl;
-	//cout << "Y.col(0)" << endl << Y.col(0) << endl;
-	//cout << "XY.col(0)" << endl << XY.col(0) << endl;
-	//end debug
 }
 
 void PCAShapeModel::splitXY(const cv::Mat &XY, cv::Mat &X, cv::Mat &Y){
@@ -44,10 +36,6 @@ void PCAShapeModel::splitXY(const cv::Mat &XY, cv::Mat &X, cv::Mat &Y){
 	int rows2 = rows / 2;
 	X = XY.rowRange(cv::Range(0, rows2));
 	Y = XY.rowRange(cv::Range(rows2, rows));
-
-	//debug
-	//cout << X << endl;
-	//end debug
 }
 
 void PCAShapeModel::generateBases(const cv::Mat &alignedShapesX, const cv::Mat &alignedShapesY, 
@@ -78,10 +66,10 @@ void PCAShapeModel::findBestDeforming(const cv::Mat &X0, const cv::Mat &Y0,
 	MappingParameters para = _para;
 	para.inverse();
 	
-	cv::Mat X, Y;
-	para.getAlignedXY(X0, Y0, X, Y, -1.0);
-	X += (1.0 / para.scale) * sX;
-	Y += (1.0 / para.scale) * sY;
+	cv::Mat X, Y, originX, originY;
+	para.getAlignedXY2(X0, Y0, sX, sY, X, Y);
+	X.copyTo(originX);
+	Y.copyTo(originY);
 
 	MappingParameters para2MeanShape;
 	AlignShape alignShape;
@@ -108,34 +96,10 @@ void PCAShapeModel::findBestDeforming(const cv::Mat &X0, const cv::Mat &Y0,
 		}
 	}
 
-	//debug
-	//cout << "b:" << endl;
-	//cout << b << endl;
-	//cout << "eigenvalues: " << endl;
-	//cout << pca.eigenvalues << endl;
-	//end debug
-
 	pca.backProject(b, XY);
 
 	splitXY(XY, resX, resY);
 
-	//debug
-	//cout << "resX _ old : " << endl;
-	//cout << resX << endl;
-	//cout << "resY _ old : " << endl;
-	//cout << resY << endl;
-	ResultProcessor resultProcessor;
-	cv::Mat tmpMat = cv::Mat(640, 480, CV_32F, cv::Scalar::all(0));
-	resultProcessor.showResultImage(resX, resY, tmpMat, "pca result");
-	//end debug
-
-	para2MeanShape.inverse();
-	para2MeanShape.getAlignedXY(resX, resY, resX, resY);
-
-	//debug
-	cout << "resX _ new: " << endl;
-	cout << resX << endl;
-	cout << "resY _ new : " << endl;
-	cout << resY << endl;
-	//end debug
+	MappingParameters para2Origin = alignShape.findBestMapping(originX, originY, resX, resY, WInOneColumn, W);
+	para2Origin.getAlignedXY(resX, resY, resX, resY);
 }

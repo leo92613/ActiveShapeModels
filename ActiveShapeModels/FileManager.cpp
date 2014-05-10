@@ -62,6 +62,9 @@ cv::Mat FileManager::list2Mat(list<cv::Mat> &L){
 
 void FileManager::loadDataAndImagesFromCSV(const string &filename, const string &imagesDir,
 	cv::Mat &shapesX, cv::Mat &shapesY, vector<cv::Mat> &images){
+	
+	//for MUCT test set
+	
 	ifstream fin(filename.c_str());
 
 	if(fin.is_open()){
@@ -77,57 +80,44 @@ void FileManager::loadDataAndImagesFromCSV(const string &filename, const string 
 
 		while(getline(fin, line)){
 			istringstream lineStream(line);
-			string field;
+			string field, filename;
 			
 			// get image filename
-			getline(lineStream, field, seperator);
-			imageFilenames.push_back(field);
-
-			//debug
-			//cout << field << endl;
-			//end debug
+			getline(lineStream, filename, seperator);
 
 			list<double> X, Y;
 
-			bool isX = true;
+			bool isX = false, isIll = false;
 			while(getline(lineStream, field, seperator)){
+				double tmp;
 				if(isX)
-					X.push_back(string2Double(field));
+					X.push_back(tmp = string2Double(field));
 				else
-					Y.push_back(string2Double(field));
+					Y.push_back(tmp = string2Double(field));
+
+				if(tmp == 0){
+					isIll = true;
+					break;
+				}
 
 				isX = !isX;
 			}
-			
-			//debug
-			//cout << list2Vec(Y) << endl;
-			//end debug
 
-			lShapesX.push_back(list2Vec(X));
-			lShapesY.push_back(list2Vec(Y));
+			if(!isIll){
+				lShapesY.push_back(list2Vec(Y));
+				lShapesX.push_back(list2Vec(X));
+				imageFilenames.push_back(filename);
+			}
 		}
 
 		shapesX = list2Mat(lShapesX);
 		shapesY = list2Mat(lShapesY);
-
-		//debug
-		//cout << shapesX.col(0) << endl;
-		//cout << shapesY.col(0) << endl;
-		//end debug
 
 		// load images
 		for(list<string>::iterator iter = imageFilenames.begin(); iter != imageFilenames.end(); iter++){
 			string &imageFilename = *iter;
 			string imagePath = imagesDir + imageFilename + ".jpg";
 			cv::Mat image = cv::imread(imagePath, CV_LOAD_IMAGE_GRAYSCALE);
-			//image.convertTo(image, CV_64F);
-			//debug
-			//cout << imagePath << endl;
-			//cv::namedWindow("Check input image", CV_WINDOW_AUTOSIZE);
-			//cv::normalize(image, image, 0, 255, cv::NORM_MINMAX, CV_8UC1);
-			//cv::imshow("Check input image", image);
-			//cv::waitKey(0);
-			//end debug
 
 			images.push_back(image);
 		}

@@ -1,5 +1,9 @@
 #include "TrainingData.h"
 
+//debug
+#include "ResultProcessor.h"
+//end debug
+
 TrainingData::TrainingData(void)
 {
 }
@@ -25,17 +29,13 @@ void TrainingData::loadDataAndImagesFromCSV(const string &csvFilename, const str
 
 	FileManager fileManager;
 	fileManager.loadDataAndImagesFromCSV(csvFilename, imagesDir, trainingShapesX, trainingShapesY, trainingImages);
-	
-	//debug
-	//cout << trainingShapesX.col(0) << endl;
-	//system("pause");
 }
 
 double TrainingData::getWk(int k){
 	const int numberOfShapes = trainingShapesX.cols;
 	const int numberOfPoints = trainingShapesX.rows;
 
-	cv::Mat D(1, numberOfShapes, CV_64F);
+	cv::Mat D(numberOfShapes, 1, CV_64F);
 
 	cv::Mat allOneMat(numberOfPoints, 1, CV_64F, cv::Scalar::all(1));
 
@@ -44,13 +44,16 @@ double TrainingData::getWk(int k){
 		cv::Mat dY = trainingShapesY.col(l) - allOneMat * trainingShapesY.at<double>(k, l);
 		double _distX = cv::norm(dX), _distY = cv::norm(dY);
 		double _dist = sqrt(_distX * _distX + _distY * _distY);
-		D.at<double>(0, l) = _dist;
+		D.at<double>(l) = _dist;
 	}
 
 	double sum = 0.0;
-	for(int l = 0; l < numberOfShapes; l++) sum += D.at<double>(0, l);
+	for(int l = 0; l < numberOfShapes; l++) sum += D.at<double>(l);
 	double mean = sum / numberOfShapes;
-	D = D - allOneMat * mean;
+
+	cv::Mat allOneMat2(numberOfShapes, 1, CV_64F, cv::Scalar::all(1));
+	D = D - allOneMat2 * mean;
+
 	double varience = cv::norm(D);
 	varience *= varience;
 	varience /= (numberOfShapes - 1);
@@ -81,17 +84,9 @@ void TrainingData::generateGradientImages(){
 		cv::convertScaleAbs(gradX, gradX);
 		cv::convertScaleAbs(gradY, gradY);
 		cv::addWeighted(gradX, 0.5, gradY, 0.5, 0, grad);
-		
 		grad.convertTo(grad, CV_64F);
-		//normalize(grad, grad, 0, 255, cv::NORM_MINMAX, -1);
-		gradientImages.push_back(grad);
 
-		//debug
-		//cout << grad.col(1) << endl;
-		//cv::namedWindow("Check graident image", CV_WINDOW_AUTOSIZE);
-		//cv::imshow("Check graident image", grad);
-		//cv::waitKey(0);
-		//end debug
+		gradientImages.push_back(grad);
 	}
 }
 
@@ -129,14 +124,10 @@ void TrainingData::generateAlignedShapes(){
 		alignedShapesY, 
 		meanAlignedShapesX, 
 		meanAlignedShapesY);
-
-	//debug
-	//cout << meanAlignedShapesX << endl;
-	//end debug
 }
 
-void TrainingData::findBestShifts(const cv::Mat &shapeX, const cv::Mat &shapeY, const cv::Mat &gradientImage,
-								  cv::Mat &shiftsX, cv::Mat &shiftsY){
+void TrainingData::findBestShifts(const cv::Mat &shapeX, const cv::Mat &shapeY, 
+								  const cv::Mat &gradientImage, cv::Mat &shiftsX, cv::Mat &shiftsY){
 	const int numberOfPoints = shapeX.rows;
 	
 	shiftsX = cv::Mat(numberOfPoints, 1, CV_64F);
@@ -146,13 +137,6 @@ void TrainingData::findBestShifts(const cv::Mat &shapeX, const cv::Mat &shapeY, 
 		localFeatures[i].findBestShift(shapeX, shapeY, gradientImage, i, 
 			shiftsX.at<double>(i, 0), shiftsY.at<double>(i, 0));
 	}
-
-	//debug
-	cout << "shiftX : " << endl;
-	cout << shiftsX << endl;
-	cout << "shiftY : " << endl;
-	cout << shiftsY << endl;
-	//end debug
 }
 
 void TrainingData::findBestDeforming(const cv::Mat &X0, const cv::Mat &Y0, const cv::Mat &sX, const cv::Mat &sY,

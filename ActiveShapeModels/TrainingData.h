@@ -36,8 +36,8 @@ public:
 	void generateAlignedShapes();
 	void generatePCAShapeModel();
 
-	void findBestShifts(const cv::Mat &shapeX, const cv::Mat &shapeY, const cv::Mat &gradientImage,
-						cv::Mat &shiftsX, cv::Mat &shiftsY);
+	void findBestShifts(const cv::Mat &shapeX, const cv::Mat &shapeY, 
+						const cv::Mat &gradientImage, cv::Mat &shiftsX, cv::Mat &shiftsY);
 	void findBestDeforming(const cv::Mat &X0, const cv::Mat &Y0, const cv::Mat &sX, const cv::Mat &sY,
 		 const MappingParameters &_para, cv::Mat &resX, cv::Mat &resY);
 };

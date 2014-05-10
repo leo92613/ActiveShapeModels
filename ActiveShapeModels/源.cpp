@@ -8,15 +8,12 @@ using namespace std;
 
 const string csvFilename("D:\\ActiveShapeModels\\TestData\\MUCT\\MUCT2.csv");
 const string imagesDir("D:\\ActiveShapeModels\\TestData\\MUCT\\");
-const string searchedImageFilename("D:\\ActiveShapeModels\\TestData\\MUCT\\i437wa-fn.jpg");
+const string searchedImageFilename("D:\\ActiveShapeModels\\TestData\\MUCT\\i002se-mn.jpg");
 
 int main(){
 
 	TrainingData trainingData(csvFilename, imagesDir);
 	ActiveShapeModels ASM(searchedImageFilename);
-	//debug
-	//ASM.creatInitialShape(trainingData);
-	//end debug
 	ASM.iterationSearch(trainingData);
 
 	//ResultProcessor resultProcessor;

@@ -61,9 +61,9 @@ MappingParameters AlignShape::findBestMapping(const cv::Mat &Ax, const cv::Mat &
 	
 	//solve Ax = b
 	cv::Mat _A = (cv::Mat_<double>(4,4) << X2, -Y2,  sumW,  0,
-										Y2,  X2,  0,  sumW,
-										 Z,   0, X2, Y2,
-										 0,   Z,-Y2, X2);
+										   Y2,  X2,   0, sumW,
+										    Z,   0,  X2,   Y2,
+										    0,   Z, -Y2,   X2);
 	cv::Mat _b = (cv::Mat_<double>(4,1) << X1, Y1, C1, C2);
 	cv::Mat _x;
 	
@@ -88,10 +88,6 @@ void AlignShape::caculateNewCoordinatesForTrainingShapes(const cv::Mat &shapesX,
 	//newShapesX & newShapesY should be created before
 	const int numberOfShapes = shapesX.cols;
 	const int numberOfPoints = shapesX.rows;
-
-	//debug
-	//cout << "trainingShapeX.col(0) :" << endl << shapesX.col(0) << endl;
-	//end debug
 
 	for(int i = 0; i < numberOfShapes; i++){
 		P[i].getAlignedXY(shapesX.col(i), shapesY.col(i), newShapesX.col(i), newShapesY.col(i));
@@ -138,30 +134,17 @@ void AlignShape::alignTrainingShapes(const cv::Mat &trainingShapesX, const cv::M
 	cv::Mat _meanShapeX, _meanShapeY;
 	getMeanShape(_newShapesX, _newShapesY, _meanShapeX, _meanShapeY);
 
-	//debug
-	//std::cout << _meanShapeX << std::endl;
-	//std::cout << trainingShapesX.col(0) << std::endl;
-	//std::cout << _newShapesX.col(0) << std::endl;
-	//std::cout << _newShapesX.col(1) << std::endl;
-	//std::cout << _newShapesX.col(2) << std::endl;
-	//end debug
-
 	MappingParameters POfMeanShape;
-	POfMeanShape = findBestMapping(trainingShapesX.col(0), trainingShapesY.col(0), _meanShapeX, _meanShapeY, WInOneColumn, W);
-	POfMeanShape.getAlignedXY(_meanShapeX, _meanShapeY, _meanShapeX, _meanShapeY);
 
 	cv::Mat _lastMeanShapeX, _lastMeanShapeY;
 	
 	for(int i = 0; i < iterationTimeThreshold; i++){
-		for(int j = 0; j < 2; j++){
-			//debug
-			//ResultProcessor resultProcessor;
-			//resultProcessor.showResultImage(_newShapesX.col(j), _newShapesY.col(j), cv::Mat(640, 480, cv_32F, cv::Scalar::all(0)), "aligned result");
-			//end debug
-		}
+		POfMeanShape = findBestMapping(trainingShapesX.col(0), trainingShapesY.col(0), _meanShapeX, _meanShapeY, WInOneColumn, W);
+		POfMeanShape.getAlignedXY(_meanShapeX, _meanShapeY, _meanShapeX, _meanShapeY);
 
 		_meanShapeX.copyTo(_lastMeanShapeX);
 		_meanShapeY.copyTo(_lastMeanShapeY);
+
 		for(int i = 0; i < numberOfShapes; i++){
 			P[i] = findBestMapping(_meanShapeX, _meanShapeY, trainingShapesX.col(i), trainingShapesY.col(i), WInOneColumn, W);
 		}
@@ -178,8 +161,4 @@ void AlignShape::alignTrainingShapes(const cv::Mat &trainingShapesX, const cv::M
 	newShapesY = _newShapesY;
 	meanShapeX = _meanShapeX;
 	meanShapeY = _meanShapeY;
-
-	//debug
-	//cout << "meanShapeX: " << endl << _meanShapeX << endl;
-	//end debug
 }

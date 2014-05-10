@@ -21,5 +21,8 @@ public:
 	void getMappingMatrix(cv::Mat &mappingMatrix);
 	void getTranslationMatrix(cv::Mat &translationMatrix);
 	void getAlignedXY(const cv::Mat &shapeX, const cv::Mat &shapeY, 
-		cv::Mat &newShapeX, cv::Mat &newShapeY, const double transRatio = 1.0);
+		cv::Mat &newShapeX, cv::Mat &newShapeY);
+
+	void getAlignedXY2(const cv::Mat &shapeX, const cv::Mat &shapeY, 
+		const cv::Mat &sX, const cv::Mat &sY, cv::Mat &newShapeX, cv::Mat &newShapeY);
 };
