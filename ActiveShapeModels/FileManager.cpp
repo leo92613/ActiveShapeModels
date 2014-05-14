@@ -114,12 +114,15 @@ void FileManager::loadDataAndImagesFromCSV(const string &filename, const string 
 		shapesY = list2Mat(lShapesY);
 
 		// load images
+		int count = 0;
 		for(list<string>::iterator iter = imageFilenames.begin(); iter != imageFilenames.end(); iter++){
 			string &imageFilename = *iter;
 			string imagePath = imagesDir + imageFilename + ".jpg";
-			cv::Mat image = cv::imread(imagePath, CV_LOAD_IMAGE_GRAYSCALE);
-
+			cv::Mat image;// = cv::imread(imagePath, CV_LOAD_IMAGE_GRAYSCALE);
+			loadImage(imagePath, image);
 			images.push_back(image);
+
+			cout << count++ << " : "<< imageFilename << endl;
 		}
 		
 	} else {
@@ -128,7 +131,105 @@ void FileManager::loadDataAndImagesFromCSV(const string &filename, const string 
 	}
 }
 
+char FileManager::getString(FILE *fin, const char sperator, string &res){
+	char ch;
+
+	while (ch = fgetc(fin), ch != EOF && (isspace(ch) || ch == sperator));
+	res = ch;
+	if(ch == EOF) return EOF;
+
+	while(ch = fgetc(fin), !isspace(ch) && ch != sperator){
+		res.push_back(ch);
+	}
+	return ch;
+}
+
+char FileManager::getDouble(FILE *fin, double &res){
+	char ch;
+
+	while(ch = fgetc(fin), !isdigit(ch) && ch != EOF) ;
+	
+	if(ch == EOF) return EOF;
+
+	res = ch - 48;
+
+	while(ch = fgetc(fin), isdigit(ch)){
+		res = res * 10 + ch - 48;
+	}
+
+	if(ch != '.') return ch;
+
+	double frac = 0.1;
+	while(ch = fgetc(fin), isdigit(ch)){
+		res += (ch - 48) * frac;
+		frac *= 0.1;
+	}
+	return ch;
+}
+
+void FileManager::jumpToNextLine(FILE *fin){
+	char ch;
+	while(ch = fgetc(fin), ch != '\n' && ch != EOF);
+}
+
+void FileManager::loadMUCTDataset(const string &filename, const string &imagesDir,
+	cv::Mat &shapesX, cv::Mat &shapesY, vector<cv::Mat> &images){
+	
+	//for MUCT test set _ fast
+	
+	FILE *fin;
+	fopen_s(&fin, filename.c_str(), "r");
+
+	list<string> imageFilenames;
+	list<cv::Mat> lShapesX;
+	list<cv::Mat> lShapesY;
+
+	//ignore the first line
+	jumpToNextLine(fin);
+	
+	string imgFilename;
+	char ch;
+	//int count = 0;
+	while(ch = getString(fin, ',', imgFilename), ch != EOF){
+		list<double> X, Y;
+		double x, y;
+		bool isIll = false, endOfLine = false;
+		while(!endOfLine && getDouble(fin, y) != EOF){
+			endOfLine = getDouble(fin, x) == '\n';
+			if(x == 0 && y == 0){
+				isIll = true;
+				jumpToNextLine(fin);
+				break;
+			}
+
+			X.push_back(x);
+			Y.push_back(y);
+		}
+		if(!isIll){
+			//cout << count++ << " : " << imgFilename << endl;
+			lShapesX.push_back(list2Vec(X));
+			lShapesY.push_back(list2Vec(Y));
+			imageFilenames.push_back(imgFilename);
+		}
+	}
+
+	fclose(fin);
+
+	shapesX = list2Mat(lShapesX);
+	shapesY = list2Mat(lShapesY);
+
+	// load images
+	for(list<string>::iterator iter = imageFilenames.begin(); iter != imageFilenames.end(); iter++){
+		string &imageFilename = *iter;
+		string imagePath = imagesDir + imageFilename + ".jpg";
+		// this mistake causes bad results
+		cv::Mat image;// = cv::imread(imagePath, CV_LOAD_IMAGE_GRAYSCALE);
+		loadImage(imagePath, image);
+		images.push_back(image);
+	}
+}
+
 void FileManager::loadImage(const string &filename, cv::Mat &image){
 	image = cv::imread(filename, CV_LOAD_IMAGE_GRAYSCALE);
-	image.convertTo(image, CV_64F);
+	image.convertTo(image, CV_64F);	//very important!
 }

@@ -17,6 +17,9 @@ public:
 
 	void getFilenamesByPathAndExtension(string path, string extension, list<string> &filenames);
 
+	char getString(FILE *fin, const char sperator, string &res);
+	char getDouble(FILE *fin, double &res);
+	void jumpToNextLine(FILE *fin);
 	double string2Double(const string &s);
 	cv::Mat list2Vec(list<double> &L);
 	cv::Mat list2Mat(list<cv::Mat> &L);
@@ -24,6 +27,8 @@ public:
 	void loadImage(const string &filename, cv::Mat &image);
 	void loadDataAndImagesFromCSV(const string &filename,	const string &imagesDir,
 		cv::Mat &shapesX, cv::Mat &shapesY, vector<cv::Mat> &images);
+	void FileManager::loadMUCTDataset(const string &filename, const string &imagesDir,
+	cv::Mat &shapesX, cv::Mat &shapesY, vector<cv::Mat> &images);
 
 	string getPathFromUser();
 	string getListFromUser();

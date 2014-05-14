@@ -8,5 +8,5 @@ const double c_asmConvergencyThreshold = 1e-3;
 
 const double c_retainedVariance = 0.95;
 
-const int c_featureSize = 10;
-const int c_shiftWindowSize = 30;
+const int c_featureSize = 5;
+const int c_shiftWindowSize = 2;

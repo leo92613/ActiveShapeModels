@@ -50,20 +50,6 @@ void LocalFeature::computeLocalFeature(const cv::Mat &trainingShapesX, const cv:
 		double dx, dy;
 		caculateDxDy(x1, y1, x2, y2, dx, dy);
 
-		//debug
-		//cout << x1 << " " << y1 << " " << x2 << " " << y2 << " " << dx << " " << dy << endl;
-		//if(curr > 5){
-		/*	ResultProcessor resultProcessor;
-			resultProcessor.debugLoadImage(gradientImages[i]);
-			resultProcessor.debugDrawLineOnImage(cv::Point(x0, y0), cv::Point(x0 + dx * c_featureSize, y0 + dy * c_featureSize));
-			resultProcessor.debugDrawLineOnImage(cv::Point(x0, y0), cv::Point(x0 - dx * c_featureSize, y0 - dy * c_featureSize));
-			resultProcessor.debugDrawLineOnImage(cv::Point(x1, y1), cv::Point(x2, y2));
-			resultProcessor.debugDrawLineOnImage(cv::Point(x0, y0), cv::Point(x1, y1));
-			resultProcessor.debugDrawLineOnImage(cv::Point(x0, y0), cv::Point(x2, y2));
-			cv::waitKey(0);
-		}*/
-		//end debug
-
 		for(int scale = -c_featureSize; scale <= c_featureSize; scale++){
 			double _x = x0 + dx * scale;
 			double _y = y0 + dy * scale;
@@ -73,11 +59,7 @@ void LocalFeature::computeLocalFeature(const cv::Mat &trainingShapesX, const cv:
 			featureVectors.at<double>(scale + c_featureSize, i) = gradientImages[i].at<double>(_x, _y);
 		}
 
-		double sum = 0.0;
-		for(int j = 0; j < 2 * c_featureSize + 1; j++){
-			sum += fabs(featureVectors.at<double>(j, i));
-		}
-		featureVectors.col(i) /= sum;
+		cv::normalize(featureVectors.col(i), featureVectors.col(i), 1, 0, cv::NORM_L1);
 	}
 
 	cv::calcCovarMatrix(featureVectors, covar, mean, CV_COVAR_NORMAL | CV_COVAR_COLS);
@@ -126,11 +108,7 @@ void LocalFeature::findBestShift(const cv::Mat &shapeX, const cv::Mat &shapeY, c
 
 		cv::Mat featureAtXY = features.rowRange(scale - c_featureSize + idShift, scale + c_featureSize + idShift + 1).clone();
 	
-		double sum = 0.0;
-		for(int i = 0; i < featureAtXY.rows; i++){
-			sum += fabs(featureAtXY.at<double>(i));
-		}
-		featureAtXY /= sum;
+		cv::normalize(featureAtXY, featureAtXY, 1, 0, cv::NORM_L1);
 
 		double _dist = cv::Mahalanobis(featureAtXY, mean, icovar);
 		if(_dist < minDist){
@@ -139,37 +117,6 @@ void LocalFeature::findBestShift(const cv::Mat &shapeX, const cv::Mat &shapeY, c
 			minDist_y = _y;
 		}
 	}
-	//cout << endl;
-
-	//debug
-	//static int counts = 0;
-	//if(counts++ > 2000){
-	//	for(int scale =  - c_shiftWindowSize; scale <= c_shiftWindowSize; scale++){
-	//		double _x = x0 + dx * scale;
-	//		double _y = y0 + dy * scale;
-
-	//		if(_x < 0 || _x >= gradientImage.rows || _y < 0 || _y >= gradientImage.cols) continue;
-
-	//		cv::Mat featureAtXY = features.rowRange(scale - c_featureSize + idShift, scale + c_featureSize + idShift + 1);
-	//		//cv::normalize(featureAtXY, featureAtXY);
-
-	//		double _dist = cv::Mahalanobis(featureAtXY, mean, icovar);
-	//	
-	//		cout << _dist << endl;
-	//		ResultProcessor rP;
-	//		rP.debugLoadImage(gradientImage);
-	//		rP.debugDrawLineOnImage(cv::Point(x0, y0), cv::Point(x0 + dx * c_shiftWindowSize, y0 + dy * c_shiftWindowSize));
-	//		rP.debugDrawLineOnImage(cv::Point(x0, y0), cv::Point(x0 - dx * c_shiftWindowSize, y0 - dy * c_shiftWindowSize));
-	//		rP.debugDrawLineOnImage(cv::Point(x1, y1), cv::Point(x2, y2));
-	//		rP.debugDrawLineOnImage(cv::Point(x0, y0), cv::Point(x1, y1));
-	//		rP.debugDrawLineOnImage(cv::Point(x0, y0), cv::Point(x2, y2));
-	//		rP.debugDrawCircleOnImage(cv::Point(minDist_x, minDist_y), 2, -1);
-	//		rP.debugDrawCircleOnImage(cv::Point(_x, _y), _dist / 500);
-	//		cv::waitKey(0);
-	//	}
-	//	cout << "=========" << endl;
-	//}
- 	//end debug
 
 	shiftX = minDist_x - x0;
 	shiftY = minDist_y - y0;

@@ -8,7 +8,7 @@ using namespace std;
 
 const string csvFilename("D:\\ActiveShapeModels\\TestData\\MUCT\\MUCT2.csv");
 const string imagesDir("D:\\ActiveShapeModels\\TestData\\MUCT\\");
-const string searchedImageFilename("D:\\ActiveShapeModels\\TestData\\MUCT\\i002se-mn.jpg");
+const string searchedImageFilename("D:\\ActiveShapeModels\\TestData\\MUCT\\i000qa-fn.jpg");
 
 int main(){
 

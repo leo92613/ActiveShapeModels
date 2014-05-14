@@ -28,7 +28,7 @@ void TrainingData::loadDataAndImagesFromCSV(const string &csvFilename, const str
 	cerr << "load training data and training images from csv file" << endl;
 
 	FileManager fileManager;
-	fileManager.loadDataAndImagesFromCSV(csvFilename, imagesDir, trainingShapesX, trainingShapesY, trainingImages);
+	fileManager.loadMUCTDataset(csvFilename, imagesDir, trainingShapesX, trainingShapesY, trainingImages);
 }
 
 double TrainingData::getWk(int k){
@@ -85,6 +85,9 @@ void TrainingData::generateGradientImages(){
 		cv::convertScaleAbs(gradY, gradY);
 		cv::addWeighted(gradX, 0.5, gradY, 0.5, 0, grad);
 		grad.convertTo(grad, CV_64F);
+		
+		//the result of following code seems bad
+		//cv::Sobel(*iter, grad, (*iter).depth(), 1, 1);
 
 		gradientImages.push_back(grad);
 	}

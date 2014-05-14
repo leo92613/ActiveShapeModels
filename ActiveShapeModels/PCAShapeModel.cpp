@@ -86,7 +86,7 @@ void PCAShapeModel::findBestDeforming(const cv::Mat &X0, const cv::Mat &Y0,
 	const int numberOfComponents = b.rows;
 
 	for(int i = 0; i < numberOfComponents; i++){
-		double threshold = 3.0 * sqrt(abs(pca.eigenvalues.at<double>(i)));
+		double threshold = 3 * sqrt(abs(pca.eigenvalues.at<double>(i)));
 		if(b.at<double>(i) < -threshold){
 			b.at<double>(i) = -threshold;
 		}

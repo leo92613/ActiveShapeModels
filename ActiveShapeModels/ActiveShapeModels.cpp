@@ -25,14 +25,16 @@ void ActiveShapeModels::loadImage(const string &filename){
 }
 
 void ActiveShapeModels::generateGradiantImage(){
-	cv::Mat gradX, gradY, grad;
+	cv::Mat gradX, gradY;
 	cv::Sobel(image, gradX, image.depth(), 1, 0);
 	cv::Sobel(image, gradY, image.depth(), 0, 1);
 	cv::convertScaleAbs(gradX, gradX);
 	cv::convertScaleAbs(gradY, gradY);
-	cv::addWeighted(gradX, 0.5, gradY, 0.5, 0, grad);
+	cv::addWeighted(gradX, 0.5, gradY, 0.5, 0, gradiantImage);
+	gradiantImage.convertTo(gradiantImage, CV_64F);
 	
-	grad.convertTo(gradiantImage, CV_64F);
+	//the result of following code seems bad
+	//cv::Sobel(image, grad, image.depth(), 1, 1);
 }
 
 void ActiveShapeModels::creatInitialShape(TrainingData &trainingData){
@@ -49,7 +51,7 @@ void ActiveShapeModels::iterationSearch(TrainingData &trainingData){
 	creatInitialShape(trainingData);
 	//debug
 	ResultProcessor resultProcessor;
-	resultProcessor.showResultImage(shapeX, shapeY, gradiantImage, "Search result");
+	resultProcessor.showResultImage(shapeX, shapeY, image, "Search result");
 	//end debug
 
 	for(int i = 0; i < c_asmSearchThreshold; i++){
